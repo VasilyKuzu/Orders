@@ -4,26 +4,21 @@ class Program
 {
     public static void Main()
     {
-        var products = new List<Product>
-        {
-            new Product("Яблоко", "apple23", 45),
-            new Product("Банан", "banana23", 30),
-            new Product("Картошка", "potato23", 15)
-        };
 
-        var productItems = new List<OrderItem>
-        {
-            new OrderItem (products[0], 3),
-            new OrderItem (products[1], 5),
-            new OrderItem (products[2], 12)
-        };
+        Product cherry = new Product("Вишня", "cherry23", 40);
+        Product grape = new Product("Виноград", "grape23", 60);
 
-        Order order1 = new Order(productItems);
+        OrderService service = new OrderService();
 
-        Product orange = new Product("Orange", "orange23", 20);
+        var order = service.CreateOrder();
 
-        order1.AddItem(orange, 3);
+        service.AddItem(order, cherry, 1);
+        service.AddItem(order, grape, 2);
 
-        order1.PrintOrder();
+        service.RemoveItem(order, cherry);
+        service.UpdateQuantity(order, grape, 45);
+
+        service.Print(order);
+
     }
 }
