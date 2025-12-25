@@ -1,4 +1,4 @@
-﻿namespace OrderExercise
+﻿namespace OrderExercise.Domain
 {
     public class Product
     {
