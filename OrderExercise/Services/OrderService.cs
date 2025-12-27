@@ -16,21 +16,30 @@ namespace OrderExercise.Services
             _repository = repository;
         }
 
-        public void CreateOrder(List<(Product product, int quantity)> itemsData)
+        public void CreateOrder(List<OrderItem> itemsData)
         {
             Order order = new();
 
-            foreach (var (product, quantity) in itemsData)
+            foreach (var OrderItem in itemsData)
             {
-                order.AddItem(product, quantity);
+                order.AddItem(OrderItem.Product, OrderItem.Quantity);
             }
 
             _repository.AddOrder(order);
         }
 
+        public Guid CreateOrder()
+        {
+            Order order = new();
+
+            _repository.AddOrder(order);
+            return order.Id;
+        }
+
         public List<Order> GetOrders()
         {
-           return _repository.GetOrders();
+            return _repository.GetOrders();
         }
+
     }
 }
