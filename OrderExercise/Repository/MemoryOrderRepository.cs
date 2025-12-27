@@ -18,5 +18,32 @@ namespace OrderExercise.Repository
         {
             return orders;
         }
+
+        public Order FindOrder(Guid id)
+        {
+            return orders.FirstOrDefault(o => o.Id == id);
+        }
+
+        public void DeleteOrder(Guid id)
+        {
+            var orderToDelete = orders.FirstOrDefault(o => o.Id == id);
+            orders.Remove(orderToDelete);
+        }
+        public void AddOrderItem(Guid orderId, OrderItem orderItem)
+        {
+            var foundOrder = orders.FirstOrDefault(o => o.Id == orderId);
+
+            foundOrder.AddItem(orderItem);
+        }
+        public void UpdateOrderItem(Guid orderId, string article, int quantity)
+        {
+            var foundOrder = orders.FirstOrDefault(o => o.Id == orderId);
+            foundOrder.UpdateQuantity(article, quantity);
+        }
+        public void DeleteItem(Guid orderId, string article)
+        {
+            var foundOrder = orders.FirstOrDefault(o => o.Id == orderId);
+            foundOrder.RemoveItem(article);
+        }
     }
 }

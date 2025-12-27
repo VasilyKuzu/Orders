@@ -40,6 +40,32 @@ namespace OrderExercise.Services
         {
             return _repository.GetOrders();
         }
+        public Order GetOrderById(Guid id)
+        {
+            return _repository.FindOrder(id);
+        }
+        public void DeleteOrderById(Guid id)
+        {
+            _repository.DeleteOrder(id);
+        }
+
+        public void AddOrderItem(Guid orderId, string name, string article, decimal price, int quantity)
+        {
+            Product product = new Product(name, article, price);
+            OrderItem orderItem = new OrderItem(product, quantity);
+
+            _repository.AddOrderItem(orderId, orderItem);
+        }
+
+        public void UpdateOrderItem(Guid orderId, string article, int quantity)
+        {
+            _repository.UpdateOrderItem(orderId, article, quantity);
+        }
+
+        public void DeleteItem(Guid orderId, string article)
+        {
+            _repository.DeleteItem(orderId, article);
+        }
 
     }
 }

@@ -17,6 +17,10 @@ namespace OrderExercise.Domain
         {
             Items = items ?? new List<OrderItem>();
         }
+        public Order(OrderItem item)
+        {
+            Items.Add(item);
+        }
         public Order()
         {
             Items = new List<OrderItem>();
@@ -42,6 +46,25 @@ namespace OrderExercise.Domain
             }
         }
 
+        public void AddItem(OrderItem item)
+        {
+            if (item == null)
+            {
+                throw new Exception("Передано пустое значение");
+            }
+
+            var existingItem = Items.FirstOrDefault(p => p == item);
+
+            if (existingItem != null)
+            {
+                existingItem.Quantity += item.Quantity;
+            }
+            else
+            {
+                Items.Add(item);
+            }
+        }
+
         public void RemoveItem(Product product)
         {
             OrderItem? existingItem = Items.FirstOrDefault(p => p.Product.Article == product.Article);
@@ -54,34 +77,33 @@ namespace OrderExercise.Domain
             Items.Remove(existingItem);
         }
 
-        public void UpdateQuantity(Product product, int value)
+        public void RemoveItem(string article)
         {
-            OrderItem? existingItem = Items.FirstOrDefault(p => p.Product.Article == product.Article);
-
+            OrderItem? existingItem = Items.FirstOrDefault(p => p.Product.Article == article);
 
             if (existingItem == null)
             {
                 throw new Exception("Товар не найден");
             }
 
-            existingItem.Quantity += value;
+            Items.Remove(existingItem);
+        }
+
+        public void UpdateQuantity(string article, int value)
+        {
+            OrderItem? existingItem = Items.FirstOrDefault(p => p.Product.Article == article);
+
+            if (existingItem == null)
+            {
+                throw new Exception("Товар не найден");
+            }
+
+            existingItem.Quantity = value;
 
             if (existingItem.Quantity <= 0)
             {
                 Items.Remove(existingItem);
             }
-
-        }
-
-        public void PrintOrder()
-        {
-            var sortedItems = Items.OrderByDescending(p => p.Product.Name);
-
-            foreach(OrderItem o in sortedItems)
-            {
-                Console.WriteLine($"Название товара: {o.Product.Name}, артикул: {o.Product.Article}, количество: {o.Quantity}, цена: {o.Product.Price}, сумма: {o.TotalPrice}");
-            }
-            Console.WriteLine($"Итого сумма заказа: {TotalAmount}");
         }
     }
 }
