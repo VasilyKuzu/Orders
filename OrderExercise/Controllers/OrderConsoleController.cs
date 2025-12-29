@@ -19,17 +19,7 @@ namespace OrderExercise.Controllers
 
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("Введите желаемое действие:");
-                Console.WriteLine(
-                    "0. Завершить программу\n" +
-                    "1. Создать заказ\n" +
-                    "2. Посмотреть список заказов\n" +
-                    "3. Найти заказ по номеру\n" +
-                    "4. Удалить заказ\n" +
-                    "5. Добавить товар в заказ\n" +
-                    "6. Изменить кол-во товаров в заказе\n" +
-                    "7. Убрать товар из заказа");
+                PrintMenu();
 
                 int choiсe = Convert.ToInt32(Console.ReadLine());
 
@@ -43,8 +33,7 @@ namespace OrderExercise.Controllers
                         Guid orderId = service.CreateOrder();
                         Console.WriteLine($"Заказ # {orderId} создан");
 
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        WaitForInput();
                         break;
                     case 2:
                         Console.Clear();   
@@ -59,14 +48,31 @@ namespace OrderExercise.Controllers
                             }
                         }
 
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        WaitForInput();
                         break;
                     case 3:
                         Console.Clear();
                         Console.WriteLine("Введите Id заказа: ");
-                        Guid orderIdToGet = Guid.Parse(Console.ReadLine());
+                        Guid orderIdToGet;
+
+                        string? input = Console.ReadLine();
+
+                        if (!TryCastToGuid(input, out orderIdToGet))
+                        {
+                            Console.WriteLine("Некорректный формат, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         var foundOrderToGet = service.GetOrderById(orderIdToGet);
+
+                        if (foundOrderToGet == null)
+                        {
+                            Console.WriteLine("Заказ не найден, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         Console.WriteLine($"Заказ {foundOrderToGet.Id}, Итого к оплате: {foundOrderToGet.TotalAmount}");
 
                         foreach (var item in foundOrderToGet.Items)
@@ -74,69 +80,193 @@ namespace OrderExercise.Controllers
                             Console.WriteLine($"Название товара: {item.Product.Name}\nАртикул: {item.Product.Article}\nЦена: {item.Product.Price}\nКол-во: {item.Quantity}");
                         }
 
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        WaitForInput();
                         break;
                     case 4:
                         Console.Clear();
                         Console.WriteLine("Введите Id заказа: ");
-                        Guid orderIdToDelete = Guid.Parse(Console.ReadLine());
+                        if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdToDelete))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         var orderToDelete = service.GetOrderById(orderIdToDelete);
                         service.DeleteOrderById(orderIdToDelete);
-                        Console.WriteLine($"Заказ {orderToDelete.Id} удален");
 
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        Console.WriteLine($"Заказ {orderToDelete.Id} удален");
+                        WaitForInput();
                         break;
                     case 5:
                         Console.Clear();
                         Console.WriteLine("Введите номер заказа для последующего добавления товаров в него: ");
-                        Guid orderIdForAddingItems = Guid.Parse(Console.ReadLine());
-                        Console.WriteLine("Введите название товара");
-                        string productName = Console.ReadLine();
-                        Console.WriteLine("Введите артикул товара");
-                        string articleForAddingToOrder = Console.ReadLine();
-                        Console.WriteLine("Введите цену товара");
-                        decimal productPrice = Convert.ToDecimal(Console.ReadLine());
-                        Console.WriteLine("Введите кол-во товара");
-                        int product_quantity = Convert.ToInt32(Console.ReadLine());
+                        if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForAddingItems))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
 
-                        service.AddOrderItem(orderIdForAddingItems, productName, articleForAddingToOrder, productPrice, product_quantity);
+                        Console.WriteLine("Введите название товара");
+                        if (!ValidateStringInput(Console.ReadLine(), out string productName))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        Console.WriteLine("Введите артикул товара");
+                        if (!ValidateStringInput(Console.ReadLine(), out string articleForAddingToOrder))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        Console.WriteLine("Введите цену товара");
+                        if (!TryCastToDecimal(Console.ReadLine(), out decimal productPrice))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        Console.WriteLine("Введите кол-во товара");
+                        if (!TryCastToInt(Console.ReadLine(), out int productQuantity))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        service.AddOrderItem(orderIdForAddingItems, productName, articleForAddingToOrder, productPrice, productQuantity);
 
                         Console.WriteLine($"Товар {productName} добавлен в заказ {orderIdForAddingItems}");
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        WaitForInput();
                         break;
                     case 6:
                         Console.Clear();
                         Console.WriteLine("Введите номер заказа, в котором нужно изменить кол-во товара: ");
-                        Guid orderIdForUpdatingQuantity = Guid.Parse(Console.ReadLine());
+                        if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForUpdatingQuantity))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         Console.WriteLine("Введите артикул товара, кол-во которого нужно поменять");
-                        string articleForChangeQuantity = Console.ReadLine();
+                        if (!ValidateStringInput(Console.ReadLine(), out string articleForChangeQuantity))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         Console.WriteLine("Введите новое кол-во товара");
-                        int updatedQuantity = Convert.ToInt32(Console.ReadLine());
+                        if (!TryCastToInt(Console.ReadLine(), out int updatedQuantity))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
 
                         service.UpdateOrderItem(orderIdForUpdatingQuantity, articleForChangeQuantity, updatedQuantity);
 
                         Console.WriteLine($"Кол-во товара стало {updatedQuantity}");
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        WaitForInput();
                         break;
                     case 7:
                         Console.Clear();
                         Console.WriteLine("Введите номер заказа, в котором нужно удалить товар: ");
-                        Guid orderIdForRemovingItem = Guid.Parse(Console.ReadLine());
+                        if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForRemovingItem))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         Console.WriteLine("Введите артикул товара, кол-во которого нужно поменять");
-                        string articleForRemoving = Console.ReadLine();
+                        if (!ValidateStringInput(Console.ReadLine(), out string articleForRemoving))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
 
                         service.DeleteItem(orderIdForRemovingItem, articleForRemoving);
 
                         Console.WriteLine($"Товар {articleForRemoving} удален из заказа {orderIdForRemovingItem}");
-                        Console.WriteLine("Нажмите любую кнопку...");
-                        Console.ReadKey();
+                        WaitForInput();
                         break;
                 }
             }
+        }
+
+        public void PrintMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Введите желаемое действие:");
+            Console.WriteLine(
+                "0. Завершить программу\n" +
+                "1. Создать заказ\n" +
+                "2. Посмотреть список заказов\n" +
+                "3. Найти заказ по номеру\n" +
+                "4. Удалить заказ\n" +
+                "5. Добавить товар в заказ\n" +
+                "6. Изменить кол-во товаров в заказе\n" +
+                "7. Убрать товар из заказа");
+        }
+
+        public void WaitForInput()
+        {
+            Console.WriteLine("Нажмите любую кнопку...");
+            Console.ReadKey();
+        }
+
+        public bool TryCastToGuid(string? value, out Guid result)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                result = Guid.Empty;
+                return false;
+            }
+
+            return Guid.TryParse(value, out result);
+        }
+
+        public bool TryCastToInt(string? value, out int result)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                result = 0;
+                return false;
+            }
+
+            return int.TryParse(value, out result);
+        }
+
+        public bool TryCastToDecimal(string? value, out decimal result)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                result = 0;
+                return false;
+            }
+
+            return decimal.TryParse(value, out result);
+        }
+
+        public bool ValidateStringInput(string? input, out string result)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                result = string.Empty;
+                return false;
+            }
+
+            result = input;
+            return true;
         }
     }
 }
