@@ -36,11 +36,11 @@ namespace OrderExercise.Services
             return order.Id;
         }
 
-        public List<Order> GetOrders()
+        public IReadOnlyList<Order> GetOrders()
         {
             return _repository.GetOrders();
         }
-        public Order GetOrderById(Guid id)
+        public Order? GetOrderById(Guid id)
         {
             return _repository.FindOrder(id);
         }

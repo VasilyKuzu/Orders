@@ -9,40 +9,47 @@ namespace OrderExercise.Repository
 {
     public class MemoryOrderRepository : IOrderRepository
     {
-        public List<Order> orders = new();
+        private readonly List<Order> _orders = new();
         public void AddOrder(Order order)
         {
-            orders.Add(order);
+            _orders.Add(order);
         }
-        public List<Order> GetOrders()
+        public IReadOnlyList<Order> GetOrders()
         {
-            return orders;
+            return _orders;
         }
 
-        public Order FindOrder(Guid id)
+        public Order? FindOrder(Guid id)
         {
-            return orders.FirstOrDefault(o => o.Id == id);
+            return _orders.FirstOrDefault(o => o.Id == id);
         }
 
         public void DeleteOrder(Guid id)
         {
-            var orderToDelete = orders.FirstOrDefault(o => o.Id == id);
-            orders.Remove(orderToDelete);
+            var orderToDelete = _orders.FirstOrDefault(o => o.Id == id);
+            if (orderToDelete == null)
+                return;
+            _orders.Remove(orderToDelete);
         }
         public void AddOrderItem(Guid orderId, OrderItem orderItem)
         {
-            var foundOrder = orders.FirstOrDefault(o => o.Id == orderId);
-
+            var foundOrder = _orders.FirstOrDefault(o => o.Id == orderId);
+            if (foundOrder == null)
+                return;
             foundOrder.AddItem(orderItem);
         }
         public void UpdateOrderItem(Guid orderId, string article, int quantity)
         {
-            var foundOrder = orders.FirstOrDefault(o => o.Id == orderId);
+            var foundOrder = _orders.FirstOrDefault(o => o.Id == orderId);
+            if (foundOrder == null)
+                return;
             foundOrder.UpdateQuantity(article, quantity);
         }
         public void DeleteItem(Guid orderId, string article)
         {
-            var foundOrder = orders.FirstOrDefault(o => o.Id == orderId);
+            var foundOrder = _orders.FirstOrDefault(o => o.Id == orderId);
+            if (foundOrder == null)
+                return;
             foundOrder.RemoveItem(article);
         }
     }

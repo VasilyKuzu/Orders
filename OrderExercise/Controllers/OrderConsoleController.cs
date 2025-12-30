@@ -52,7 +52,7 @@ namespace OrderExercise.Controllers
                         break;
                     case 3:
                         Console.Clear();
-                        Console.WriteLine("Введите Id заказа: ");
+                        Console.WriteLine("Введите Id искомого заказа: ");
                         Guid orderIdToGet;
 
                         string? input = Console.ReadLine();
@@ -84,7 +84,7 @@ namespace OrderExercise.Controllers
                         break;
                     case 4:
                         Console.Clear();
-                        Console.WriteLine("Введите Id заказа: ");
+                        Console.WriteLine("Введите Id удаляемого заказа: ");
                         if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdToDelete))
                         {
                             Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
@@ -93,6 +93,13 @@ namespace OrderExercise.Controllers
                         }
 
                         var orderToDelete = service.GetOrderById(orderIdToDelete);
+                        if (orderToDelete == null)
+                        {
+                            Console.WriteLine("Заказ с таким Id не найден, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
                         service.DeleteOrderById(orderIdToDelete);
 
                         Console.WriteLine($"Заказ {orderToDelete.Id} удален");
@@ -100,7 +107,7 @@ namespace OrderExercise.Controllers
                         break;
                     case 5:
                         Console.Clear();
-                        Console.WriteLine("Введите номер заказа для последующего добавления товаров в него: ");
+                        Console.WriteLine("Введите Id заказа для последующего добавления товаров в него: ");
                         if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForAddingItems))
                         {
                             Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
@@ -147,7 +154,7 @@ namespace OrderExercise.Controllers
                         break;
                     case 6:
                         Console.Clear();
-                        Console.WriteLine("Введите номер заказа, в котором нужно изменить кол-во товара: ");
+                        Console.WriteLine("Введите Id заказа, в котором нужно изменить кол-во товара: ");
                         if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForUpdatingQuantity))
                         {
                             Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
