@@ -2,28 +2,43 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace OrderExercise.Domain
 {
     public class Order
     {
-        public Guid Id { get; } = Guid.NewGuid();
-        public List<OrderItem> Items = new();
-        public DateTime CreatedAt { get; } = DateTime.UtcNow;
+        public Guid Id { get; private set; }
+        public List<OrderItem> Items { get; private set; }
+        public DateTime CreatedAt { get; private set; }
         public decimal TotalAmount => Items.Sum(p => p.TotalPrice);
 
         public Order(List<OrderItem> items)
         {
+            Id = Guid.NewGuid();
+            CreatedAt = DateTime.UtcNow;
             Items = items ?? new List<OrderItem>();
         }
         public Order(OrderItem item)
         {
-            Items.Add(item);
+            Id = Guid.NewGuid();
+            CreatedAt = DateTime.UtcNow;
+            Items = new List<OrderItem> { item };
         }
         public Order()
         {
+            Id = Guid.NewGuid();
+            CreatedAt = DateTime.UtcNow;
             Items = new List<OrderItem>();
+        }
+
+        [JsonConstructor]
+        public Order(Guid id, DateTime createdAt, List<OrderItem> items)
+        {
+            Id = id;
+            CreatedAt = createdAt;
+            Items = items ?? new List<OrderItem>();
         }
 
         public void AddItem(Product product, int quantity)

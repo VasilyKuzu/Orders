@@ -13,7 +13,42 @@ namespace OrderExercise.Controllers
     {
         public void Start()
         {
-            MemoryOrderRepository repository = new();
+            IOrderRepository repository = new MemoryOrderRepository();
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("Выберите место для хранения данных:\n0. Завершить программу\n1. Json в файле\n2. Внутрення память");
+
+                if (!TryCastToInt(Console.ReadLine(), out int choiсe))
+                {
+                    Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                    WaitForInput();
+                    continue;
+                }
+                switch (choiсe)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        Console.Clear();
+                        repository = new JsonOrderRepository();
+                        Console.WriteLine("В качестве хранения выбран файл, запись в формате Json");
+                        WaitForInput();
+                        break;
+                    case 2:
+                        Console.Clear();
+                        repository = new MemoryOrderRepository();
+                        Console.WriteLine("В качестве хранения выбрана внутренняя память");
+                        WaitForInput();
+                        break;
+                    default:
+                        Console.WriteLine("Неизвестный пункт меню");
+                        WaitForInput();
+                        continue;
+                }
+                break;
+            }
 
             OrderService service = new OrderService(repository);
 
@@ -21,7 +56,12 @@ namespace OrderExercise.Controllers
             {
                 PrintMenu();
 
-                int choiсe = Convert.ToInt32(Console.ReadLine());
+                if (!TryCastToInt(Console.ReadLine(), out int choiсe))
+                {
+                    Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                    WaitForInput();
+                    continue;
+                }
 
                 switch (choiсe)
                 {
