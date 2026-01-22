@@ -84,7 +84,7 @@ namespace OrderExercise.Controllers
 
                             foreach (var item in o.Items)
                             {
-                                Console.WriteLine($"Название товара: {item.Product.Name}\nАртикул: {item.Product.Article}\nЦена: {item.Product.Price}\nКол-во: {item.Quantity}");
+                                Console.WriteLine($"Название товара: {item.Product.Name}\nАртикул: {item.Product.Article}\nЦена: {item.UnitPrice}\nКол-во: {item.Quantity}");
                             }
                         }
 
@@ -117,7 +117,7 @@ namespace OrderExercise.Controllers
 
                         foreach (var item in foundOrderToGet.Items)
                         {
-                            Console.WriteLine($"Название товара: {item.Product.Name}\nАртикул: {item.Product.Article}\nЦена: {item.Product.Price}\nКол-во: {item.Quantity}");
+                            Console.WriteLine($"Название товара: {item.Product.Name}\nАртикул: {item.Product.Article}\nЦена: {item.UnitPrice}\nКол-во: {item.Quantity}");
                         }
 
                         WaitForInput();
@@ -218,12 +218,43 @@ namespace OrderExercise.Controllers
                             continue;
                         }
 
-                        service.UpdateOrderItem(orderIdForUpdatingQuantity, articleForChangeQuantity, updatedQuantity);
+                        service.UpdateQuantityOrderItem(orderIdForUpdatingQuantity, articleForChangeQuantity, updatedQuantity);
 
-                        Console.WriteLine($"Кол-во товара стало {updatedQuantity}");
+                        Console.WriteLine($"Кол-во товара {articleForChangeQuantity} стало {updatedQuantity}");
                         WaitForInput();
                         break;
                     case 7:
+                        Console.Clear();
+                        Console.WriteLine("Введите Id заказа, в котором нужно изменить цену товара: ");
+                        if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForUpdatingPrice))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        Console.WriteLine("Введите артикул товара, кол-во которого нужно поменять");
+                        if (!ValidateStringInput(Console.ReadLine(), out string articleForChangePrice))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        Console.WriteLine("Введите новую цену товара");
+                        if (!TryCastToDecimal(Console.ReadLine(), out decimal updatedPrice))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        service.UpdatePriceOrderItem(orderIdForUpdatingPrice, articleForChangePrice, updatedPrice);
+
+                        Console.WriteLine($"Цена товара {articleForChangePrice} стала {updatedPrice}");
+                        WaitForInput();
+                        break;
+                    case 8:
                         Console.Clear();
                         Console.WriteLine("Введите номер заказа, в котором нужно удалить товар: ");
                         if (!TryCastToGuid(Console.ReadLine(), out Guid orderIdForRemovingItem))
@@ -262,7 +293,8 @@ namespace OrderExercise.Controllers
                 "4. Удалить заказ\n" +
                 "5. Добавить товар в заказ\n" +
                 "6. Изменить кол-во товаров в заказе\n" +
-                "7. Убрать товар из заказа");
+                "7. Изменить цену товара в заказе\n" +
+                "8. Убрать товар из заказа");
         }
 
         public void WaitForInput()

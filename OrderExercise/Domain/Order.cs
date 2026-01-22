@@ -41,22 +41,30 @@ namespace OrderExercise.Domain
             Items = items ?? new List<OrderItem>();
         }
 
-        public void AddItem(Product product, int quantity)
+        public void AddItem(Product product, int quantity, decimal unitPrice)
         {
             if (quantity <= 0)
             {
                 throw new Exception("Кол-во должно быть больше 0");
             }
 
+            if (unitPrice < 0)
+            {
+                throw new Exception("Цена не может быть отрицательной");
+            }
+
             var existingItem = Items.FirstOrDefault(p => p.Product.Article == product.Article);
             
             if (existingItem != null)
             {
-                existingItem.Quantity += quantity;
+                var newQuantity = existingItem.Quantity;
+                newQuantity += quantity;
+
+                existingItem.UpdateQuantity(newQuantity);
             }
             else
             {
-                OrderItem orderItem = new OrderItem(product, quantity);
+                OrderItem orderItem = new OrderItem(product, quantity, unitPrice);
                 Items.Add(orderItem);
             }
         }
@@ -68,11 +76,14 @@ namespace OrderExercise.Domain
                 throw new Exception("Передано пустое значение");
             }
 
-            var existingItem = Items.FirstOrDefault(p => p == item);
+            var existingItem = Items.FirstOrDefault(p => p.Product.Article == item.Product.Article);
 
             if (existingItem != null)
             {
-                existingItem.Quantity += item.Quantity;
+                var newQuantity = existingItem.Quantity;
+                newQuantity += item.Quantity;
+
+                existingItem.UpdateQuantity(newQuantity);
             }
             else
             {
@@ -113,12 +124,32 @@ namespace OrderExercise.Domain
                 throw new Exception("Товар не найден");
             }
 
-            existingItem.Quantity = value;
-
             if (existingItem.Quantity <= 0)
             {
                 Items.Remove(existingItem);
             }
+
+            existingItem.UpdateQuantity(value);
+
         }
+
+        public void UpdatePrice(string article, decimal value)
+        {
+            OrderItem? existingItem = Items.FirstOrDefault(p => p.Product.Article == article);
+
+            if (existingItem == null)
+            {
+                throw new Exception("Товар не найден");
+            }
+
+            if (value < 0)
+            {
+                throw new Exception("Цена не может быть отрицательной");
+            }
+
+            existingItem.UpdatePrice(value);
+
+        }
+
     }
 }

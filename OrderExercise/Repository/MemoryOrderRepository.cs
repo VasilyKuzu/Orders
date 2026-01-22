@@ -38,7 +38,14 @@ namespace OrderExercise.Repository
                 return;
             foundOrder.AddItem(orderItem);
         }
-        public void UpdateOrderItem(Guid orderId, string article, int quantity)
+        public void UpdatePriceOrderItem(Guid orderId, string article, decimal unitPrice)
+        {
+            var foundOrder = _orders.FirstOrDefault(o => o.Id == orderId);
+            if (foundOrder == null)
+                return;
+            foundOrder.UpdatePrice(article, unitPrice);
+        }
+        public void UpdateQuantityOrderItem(Guid orderId, string article, int quantity)
         {
             var foundOrder = _orders.FirstOrDefault(o => o.Id == orderId);
             if (foundOrder == null)

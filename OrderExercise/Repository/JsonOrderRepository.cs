@@ -76,7 +76,16 @@ namespace OrderExercise.Repository
             order.RemoveItem(article);
             WriteAll(orders);
         }
-        public void UpdateOrderItem(Guid orderId, string article, int quantity)
+        public void UpdatePriceOrderItem(Guid orderId, string article, decimal unitPrice)
+        {
+            var orders = ReadAll();
+            var order = orders.FirstOrDefault(p => p.Id == orderId);
+            if (order == null) return;
+            order.UpdatePrice(article, unitPrice);
+            WriteAll(orders);
+        }
+
+        public void UpdateQuantityOrderItem(Guid orderId, string article, int quantity)
         {
             var orders = ReadAll();
             var order = orders.FirstOrDefault(p => p.Id == orderId);
@@ -84,5 +93,6 @@ namespace OrderExercise.Repository
             order.UpdateQuantity(article, quantity);
             WriteAll(orders);
         }
+
     }
 }

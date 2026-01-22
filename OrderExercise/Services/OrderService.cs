@@ -22,7 +22,7 @@ namespace OrderExercise.Services
 
             foreach (var OrderItem in itemsData)
             {
-                order.AddItem(OrderItem.Product, OrderItem.Quantity);
+                order.AddItem(OrderItem.Product, OrderItem.Quantity, OrderItem.UnitPrice);
             }
 
             _repository.AddOrder(order);
@@ -51,15 +51,20 @@ namespace OrderExercise.Services
 
         public void AddOrderItem(Guid orderId, string name, string article, decimal price, int quantity)
         {
-            Product product = new Product(name, article, price);
-            OrderItem orderItem = new OrderItem(product, quantity);
+            Product product = new Product(name, article);
+            OrderItem orderItem = new OrderItem(product, quantity, price);
 
             _repository.AddOrderItem(orderId, orderItem);
         }
 
-        public void UpdateOrderItem(Guid orderId, string article, int quantity)
+        public void UpdateQuantityOrderItem(Guid orderId, string article, int quantity)
         {
-            _repository.UpdateOrderItem(orderId, article, quantity);
+            _repository.UpdateQuantityOrderItem(orderId, article, quantity);
+        }
+
+        public void UpdatePriceOrderItem(Guid orderId, string article, decimal unitPrice)
+        {
+            _repository.UpdatePriceOrderItem(orderId, article, unitPrice);
         }
 
         public void DeleteItem(Guid orderId, string article)
