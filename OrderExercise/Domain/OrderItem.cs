@@ -2,6 +2,7 @@
 {
     public class OrderItem
     {
+        public Guid Id { get; private set; }
         public Product Product { get; private set; }
         public int Quantity { get; private set; }
         public decimal UnitPrice { get; private set; }
@@ -9,10 +10,10 @@
 
         public OrderItem(Product product, int quantity, decimal unitPrice)
         {
+            Id = Guid.NewGuid();
             Product = product;
             Quantity = quantity;
             UnitPrice = unitPrice;
-
         }
 
         public void UpdateQuantity(int quantity)

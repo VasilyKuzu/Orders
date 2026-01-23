@@ -6,7 +6,6 @@
         public string Name { get; set; }
         public string Article { get; set; }
 
-
         public Product(string name, string article)
         {
             Name = name;
