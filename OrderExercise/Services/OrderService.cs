@@ -52,9 +52,9 @@ namespace OrderExercise.Services
         public void AddOrderItem(Guid orderId, string name, string article, decimal price, int quantity)
         {
             Product product = new Product(name, article);
-            OrderItem orderItem = new OrderItem(product, quantity, price);
 
-            _repository.AddOrderItem(orderId, orderItem);
+            Order order = _repository.FindOrder(orderId);
+            order.AddItem(product, quantity, price);
         }
 
         public void UpdateQuantityOrderItem(Guid orderId, string article, int quantity)

@@ -10,27 +10,16 @@ namespace OrderExercise.Domain
     public class Order
     {
         public Guid Id { get; private set; }
-        public List<OrderItem> Items { get; private set; }
+        private readonly List<OrderItem> _items = new();
+        public IReadOnlyList<OrderItem> Items => _items;
         public DateTime CreatedAt { get; private set; }
         public decimal TotalAmount => Items.Sum(p => p.TotalPrice);
 
-        public Order(List<OrderItem> items)
-        {
-            Id = Guid.NewGuid();
-            CreatedAt = DateTime.UtcNow;
-            Items = items ?? new List<OrderItem>();
-        }
-        public Order(OrderItem item)
-        {
-            Id = Guid.NewGuid();
-            CreatedAt = DateTime.UtcNow;
-            Items = new List<OrderItem> { item };
-        }
         public Order()
         {
             Id = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
-            Items = new List<OrderItem>();
+            _items = new List<OrderItem>();
         }
 
         [JsonConstructor]
@@ -38,7 +27,7 @@ namespace OrderExercise.Domain
         {
             Id = id;
             CreatedAt = createdAt;
-            Items = items ?? new List<OrderItem>();
+            _items = items ?? new List<OrderItem>();
         }
 
         public void AddItem(Product product, int quantity, decimal unitPrice)
@@ -64,8 +53,8 @@ namespace OrderExercise.Domain
             }
             else
             {
-                OrderItem orderItem = new OrderItem(product, quantity, unitPrice);
-                Items.Add(orderItem);
+                OrderItem orderItem = new OrderItem(this, product, quantity, unitPrice);
+                _items.Add(orderItem);
             }
         }
 
@@ -87,7 +76,7 @@ namespace OrderExercise.Domain
             }
             else
             {
-                Items.Add(item);
+                _items.Add(item);
             }
         }
 
@@ -100,7 +89,7 @@ namespace OrderExercise.Domain
                 throw new Exception("Товар не найден");
             }
 
-            Items.Remove(existingItem);
+            _items.Remove(existingItem);
         }
 
         public void RemoveItem(string article)
@@ -112,7 +101,7 @@ namespace OrderExercise.Domain
                 throw new Exception("Товар не найден");
             }
 
-            Items.Remove(existingItem);
+            _items.Remove(existingItem);
         }
 
         public void UpdateQuantity(string article, int value)
@@ -124,12 +113,13 @@ namespace OrderExercise.Domain
                 throw new Exception("Товар не найден");
             }
 
+            existingItem.UpdateQuantity(value);
+
             if (existingItem.Quantity <= 0)
             {
-                Items.Remove(existingItem);
+                _items.Remove(existingItem);
             }
 
-            existingItem.UpdateQuantity(value);
 
         }
 
