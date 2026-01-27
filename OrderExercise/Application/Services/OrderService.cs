@@ -2,11 +2,12 @@
 using OrderExercise.Repository;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderExercise.Services
+namespace OrderExercise.Application.Services
 {
     public class OrderService
     {
@@ -53,7 +54,8 @@ namespace OrderExercise.Services
         {
             Product product = new Product(name, article);
 
-            Order order = _repository.FindOrder(orderId);
+            Order? order = _repository.FindOrder(orderId);
+            if (order == null) return;
             order.AddItem(product, quantity, price);
         }
 
@@ -72,5 +74,9 @@ namespace OrderExercise.Services
             _repository.DeleteItem(orderId, article);
         }
 
+        public void DeleteOrders()
+        {
+            _repository.DeleteOrders();
+        }
     }
 }

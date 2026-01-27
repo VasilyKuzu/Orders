@@ -93,6 +93,11 @@ namespace OrderExercise.Repository
             order.UpdateQuantity(article, quantity);
             WriteAll(orders);
         }
-
+        public void DeleteOrders()
+        {
+            var orders = ReadAll();
+            orders.Clear();
+            WriteAll(orders);
+        }
     }
 }

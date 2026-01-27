@@ -59,5 +59,10 @@ namespace OrderExercise.Repository
                 return;
             foundOrder.RemoveItem(article);
         }
+        public void DeleteOrders()
+        {
+            _orders.Clear();
+        }
+
     }
 }

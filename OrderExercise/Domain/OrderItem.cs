@@ -1,4 +1,6 @@
-﻿namespace OrderExercise.Domain
+﻿using System.Text.Json.Serialization;
+
+namespace OrderExercise.Domain
 {
     public class OrderItem
     {

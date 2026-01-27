@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OrderExercise.Application.DTOs;
+using OrderExercise.Application.Generators;
+using OrderExercise.Application.Services;
 using OrderExercise.Domain;
 using OrderExercise.Repository;
-using OrderExercise.Services;
 
 namespace OrderExercise.Controllers
 {
@@ -51,6 +53,8 @@ namespace OrderExercise.Controllers
             }
 
             OrderService service = new OrderService(repository);
+            OrderStatisticService statService = new OrderStatisticService(repository);
+            OrderGenerator generator = new OrderGenerator(repository);
 
             while (true)
             {
@@ -178,11 +182,23 @@ namespace OrderExercise.Controllers
                             WaitForInput();
                             continue;
                         }
+                        if (productPrice < 0)
+                        {
+                            Console.WriteLine("Цена товара не может быть отрицательной");
+                            WaitForInput();
+                            continue;
+                        }
 
                         Console.WriteLine("Введите кол-во товара");
                         if (!TryCastToInt(Console.ReadLine(), out int productQuantity))
                         {
                             Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+                        if (productQuantity <= 0)
+                        {
+                            Console.WriteLine("Кол-во товара не может быть отрицательным или равным 0");
                             WaitForInput();
                             continue;
                         }
@@ -217,6 +233,12 @@ namespace OrderExercise.Controllers
                             WaitForInput();
                             continue;
                         }
+                        if (updatedQuantity < 0)
+                        {
+                            Console.WriteLine("Кол-во товара не может быть отрицательным. Введите 0 для удаления позиции заказа");
+                            WaitForInput();
+                            continue;
+                        }
 
                         service.UpdateQuantityOrderItem(orderIdForUpdatingQuantity, articleForChangeQuantity, updatedQuantity);
 
@@ -245,6 +267,12 @@ namespace OrderExercise.Controllers
                         if (!TryCastToDecimal(Console.ReadLine(), out decimal updatedPrice))
                         {
                             Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+                        if (updatedPrice < 0)
+                        {
+                            Console.WriteLine("Цена не может быть отрицательной");
                             WaitForInput();
                             continue;
                         }
@@ -277,6 +305,90 @@ namespace OrderExercise.Controllers
                         Console.WriteLine($"Товар {articleForRemoving} удален из заказа {orderIdForRemovingItem}");
                         WaitForInput();
                         break;
+                    case 9:
+                        Console.Clear();
+                        service.DeleteOrders();
+                        Console.WriteLine($"Все заказы удалены");
+
+                        WaitForInput();
+                        break;
+                    case 10:
+                        Console.Clear();
+                        Console.WriteLine("Введите, сколько заказов нужно сгенерировать:");
+                        if (!TryCastToInt(Console.ReadLine(), out int numberOfOrdersToGenerate))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+                        if (numberOfOrdersToGenerate <= 0)
+                        {
+                            Console.WriteLine("Кол-во заказов не может быть равным 0 или отрицательным");
+                            WaitForInput();
+                            continue;
+                        }
+                        generator.GenerateOrders(numberOfOrdersToGenerate);
+                        Console.WriteLine($"Заказы сгенерированы");
+
+                        WaitForInput();
+                        break;
+                    case 11:
+                        Console.Clear();
+                        Console.WriteLine("Введите, сколько заказов вывести:");
+                        if (!TryCastToInt(Console.ReadLine(), out int numberOfOrdersInTheTopSales))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+                        if (numberOfOrdersInTheTopSales <= 0)
+                        {
+                            Console.WriteLine("Кол-во заказов не может быть равным 0 или отрицательным");
+                            WaitForInput();
+                            continue;
+                        }
+                        IEnumerable<Order> topSellingProducts = statService.GetTopOrders(numberOfOrdersInTheTopSales);
+
+                        foreach(Order i in topSellingProducts)
+                        {
+                            Console.WriteLine($"# {i.Id}, Сумма продаж {i.TotalAmount}");
+                        }
+
+                        WaitForInput();
+                        break;
+                    case 12:
+                        Console.Clear();
+                        Console.WriteLine("Введите, сколько товаров вывести:");
+                        if (!TryCastToInt(Console.ReadLine(), out int numberOfTopSellingProducts))
+                        {
+                            Console.WriteLine("Неверный формат ввода, попробуйте еще раз");
+                            WaitForInput();
+                            continue;
+                        }
+                        if (numberOfTopSellingProducts <= 0)
+                        {
+                            Console.WriteLine("Кол-во товаров не может быть равным 0 или отрицательным");
+                            WaitForInput();
+                            continue;
+                        }
+
+                        IEnumerable<TopSoldItem> topSoldItems = statService.GetTopSoldItems(numberOfTopSellingProducts);
+
+                        foreach (TopSoldItem i in topSoldItems)
+                        {
+                            Console.WriteLine($"Артикул: {i.Article}, Название: {i.Name}, Продано: {i.TotalQuantity}, Заработано: {i.TotalAmount}");
+                        }
+
+                        WaitForInput();
+                        break;
+                    case 13:
+                        Console.Clear();
+                        decimal averageAmount = statService.GetAverageAmount();
+
+                        Console.WriteLine($"Среднее значение сумм всех заказов: {averageAmount}");
+
+                        WaitForInput();
+                        break;
                 }
             }
         }
@@ -294,7 +406,12 @@ namespace OrderExercise.Controllers
                 "5. Добавить товар в заказ\n" +
                 "6. Изменить кол-во товаров в заказе\n" +
                 "7. Изменить цену товара в заказе\n" +
-                "8. Убрать товар из заказа");
+                "8. Убрать товар из заказа\n" +
+                "9. Удалить все заказы\n" +
+                "10. Сгенерировать n заказов\n" +
+                "11. Получить топ заказов\n" +
+                "12. Получить топ заказов\n" +
+                "13. Получить среднее значение сумм заказов");
         }
 
         public void WaitForInput()
