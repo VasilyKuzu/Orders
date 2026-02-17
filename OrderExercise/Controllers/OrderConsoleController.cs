@@ -20,7 +20,7 @@ namespace OrderExercise.Controllers
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("Выберите место для хранения данных:\n0. Завершить программу\n1. Json в файле\n2. Внутрення память");
+                Console.WriteLine("Выберите место для хранения данных:\n0. Завершить программу\n1. Json в файле\n2. Внутренняя память");
 
                 if (!TryCastToInt(Console.ReadLine(), out int choiсe))
                 {
@@ -410,7 +410,7 @@ namespace OrderExercise.Controllers
                 "9. Удалить все заказы\n" +
                 "10. Сгенерировать n заказов\n" +
                 "11. Получить топ заказов\n" +
-                "12. Получить топ заказов\n" +
+                "12. Получить топ товаров\n" +
                 "13. Получить среднее значение сумм заказов");
         }
 
